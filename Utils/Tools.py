@@ -22,7 +22,7 @@ class Tools:
                 return
         else:
             current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-            cmd = ['nuclei', '-l', "new_subdomains.txt", '-t', '/root/nuclei-templates/http/cves', '-t', '/root/nuclei-templates/http/misconfiguration', '-o', 'nuclei_results.txt', '-iserver', 'ckbr1p62vtc0000994w0gj3itnayyyyyn.osoro.zip', '-s' , 'high,critical']
+            cmd = ['nuclei', '-l', "new_subdomains.txt", '-t', '/root/nuclei-templates/http/cves', '-t', '/root/nuclei-templates/http/misconfiguration', '-o', 'nuclei_results.txt', '-s','high,critical']
             try:
                 result = subprocess.run(cmd, capture_output=True, text=True)
                 if os.path.isfile('nuclei_results.txt'):
@@ -34,7 +34,7 @@ class Tools:
     
     def run_single_nuclei(self, domain):
         current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-        cmd = ['nuclei', '-u', domain, '-t', '/root/nuclei-templates/http/cves', '-t', '/root/nuclei-templates/http/misconfiguration', '-o', 'nuclei_results.txt', '-iserver', 'ckbr1p62vtc0000994w0gj3itnayyyyyn.osoro.zip', '-s' , 'high,critical']
+        cmd = ['nuclei', '-u', domain, '-t', '/root/nuclei-templates/http/cves', '-t', '/root/nuclei-templates/http/misconfiguration', '-o', 'nuclei_results.txt', '-s', 'high,critical']
         try:
             result = subprocess.run(cmd, capture_output=True, text=True)
             if os.path.isfile('nuclei_results.txt'):
