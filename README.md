@@ -1,6 +1,6 @@
 
 ```console
-  subdomain - Python script to monitor subs from crt.sh
+  submon - Python script to monitor subs from crt.sh
   _________    ___.       _____   ________    _______   
  /   _____/__ _\_ |__    /     \  \_____  \   \      \  
  \_____  \|  |  \ __ \  /  \ /  \  /   |   \  /   |   \ 
@@ -16,7 +16,7 @@
 - Delete a domain and subdomains from database
 - Monitor single domain
 - Filter wildcard subdomains
-- Run nuclei (🫠)
+- Run nuclei (🫠) (default path /root/nuclei-templates/) 
 - Send information to TELEGRAM (ONLY!)
 
 #### Configura/install
