@@ -27,6 +27,8 @@ if len(sys.argv) < 1:
     print("Usage: python3 main.py -f domains.txt")
     sys.exit(1)
 
+
+
 domains_file = args.file
 delete_domain = args.delete
 list_domains = args.list
@@ -76,6 +78,10 @@ def main():
     cert_obj = Database.CertDatabase()
     wild_card_obj = WildCard.WildCardFilter()
     telegram = Telegram.Telegram(TOKEN, CHAT)
+    if nuclei_iserver != None:
+        tools_obj = Tools.Tools(nuclei_iserver, nuclei_severity)
+    else:
+        tools_obj = Tools.Tools()
 
     if delete_domain:
         cert_obj = Database.CertDatabase()
@@ -111,7 +117,7 @@ def main():
                 cert_obj.mark_subdomains_as_notified(new_subdomains)
                 if run_nuclei:
                     print(f"[*] Running nuclei on the new subdomains")
-                    tools_obj = Tools.Tools()
+                    
                     tools_obj.check_tools()
                     file_new_subdomains = os.path.abspath(file_write)
                     tools_obj.run_nuclei(file_new_subdomains)
@@ -129,7 +135,6 @@ def main():
                     cert_obj.mark_subdomains_as_notified(new_subdomains)
                     if run_nuclei:
                         print(f"[*] Running nuclei on the new subdomains")
-                        tools_obj = Tools.Tools()
                         tools_obj.check_tools()
                         tools_obj.run_single_nuclei(line)
                         print(f"[*] Nuclei scan completed")
@@ -160,7 +165,6 @@ def main():
                 print(f"File 'new_subdomains.txt' sent to Telegram {current_time}")
                 if run_nuclei:
                     print(f"[*] Running nuclei on the new subdomains")
-                    tools_obj = Tools.Tools()
                     tools_obj.check_tools()
                     file_new_subdomains = os.path.abspath('new_subdomains.txt')
                     tools_obj.run_nuclei(file_new_subdomains)
