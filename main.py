@@ -17,7 +17,9 @@ menu.add_argument("-d", "--delete", help="delete a domain and its subdomains fro
 menu.add_argument("-l", "--list", help="list all domains in the database", required=False, action="store_true")
 menu.add_argument("-ls", "--listsub", help="list all subdomains for a domain", required=False, default=None)
 menu.add_argument("-sd", "--singledomain", help="check a single domain", required=False, default=None)
-menu.add_argument("-n", "--nuclei", help="run nuclei on the new subdomains", required=False, action="store_true") ## TODO improve this 
+menu.add_argument("-n", "--nuclei", help="run nuclei on the new subdomains", required=False, action="store_true") ## TODO improve this
+menu.add_argument("-is", "--iserver", help="run nuclei on the new subdomains", required=False, default=None)
+menu.add_argument("-se", "--severity", help="run nuclei on the new subdomains", required=False, default="high,critical")
 args = menu.parse_args()
 
 if len(sys.argv) < 1:
@@ -31,6 +33,14 @@ list_domains = args.list
 run_nuclei = args.nuclei
 list_subdomains = args.listsub
 single_domain = args.singledomain
+nuclei_iserver = args.iserver
+nuclei_severity = args.severity
+
+if domains_file == "" and single_domain == None:
+    print("You must specify a file with domains to monitor or a single domain to check.")
+    menu.print_help()
+    sys.exit(1)
+
 
 if not os.path.isfile(domains_file):
     print(f"File '{domains_file}' not found.")
@@ -79,7 +89,8 @@ def main():
             print(domain)
         sys.exit(0)
 
-    if single_domain:
+    if args.singledomain:
+        single_domain = args.singledomain
         print(f"[*] Checking domain: {single_domain}")
         if not wild_card_obj.is_wildcard_domain(single_domain):
             single_domain = single_domain.strip()
@@ -127,7 +138,7 @@ def main():
                             print(f"[*] Scan completed for {line} and sent to Telegram {current_time}")
                             os.remove('nuclei_results.txt')
                             os.remove(file_write)
-    else:
+    if domains_file:
         file_path = os.path.abspath(domains_file)
         with open(file_path, 'r') as file:
             for domain in file.readlines():
