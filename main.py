@@ -18,8 +18,9 @@ menu.add_argument("-l", "--list", help="list all domains in the database", requi
 menu.add_argument("-ls", "--listsub", help="list all subdomains for a domain", required=False, default=None)
 menu.add_argument("-sd", "--singledomain", help="check a single domain", required=False, default=None)
 menu.add_argument("-n", "--nuclei", help="run nuclei on the new subdomains", required=False, action="store_true") ## TODO improve this
-menu.add_argument("-is", "--iserver", help="run nuclei on the new subdomains", required=False, default=None)
-menu.add_argument("-se", "--severity", help="run nuclei on the new subdomains", required=False, default="high,critical")
+menu.add_argument("-is", "--iserver", help="OOB server to run nuclei with", required=False, default=None)
+menu.add_argument("-se", "--severity", help="severity to run your templates (use comma separated values foo,bar,john)", required=False, default="high,critical")
+menu.add_argument("-t", "--templates", help="path where your templates are saved", required=False, default=None)
 args = menu.parse_args()
 
 if len(sys.argv) < 1:
@@ -35,8 +36,10 @@ list_domains = args.list
 run_nuclei = args.nuclei
 list_subdomains = args.listsub
 single_domain = args.singledomain
+
 nuclei_iserver = args.iserver
 nuclei_severity = args.severity
+nuclei_templates_path = args.templates
 
 if domains_file == "" and single_domain == None:
     print("You must specify a file with domains to monitor or a single domain to check.")
@@ -78,8 +81,13 @@ def main():
     cert_obj = Database.CertDatabase()
     wild_card_obj = WildCard.WildCardFilter()
     telegram = Telegram.Telegram(TOKEN, CHAT)
-    if nuclei_iserver != None:
+    
+    if nuclei_iserver != None and nuclei_severity:
         tools_obj = Tools.Tools(nuclei_iserver, nuclei_severity)
+    elif nuclei_severity and nuclei_iserver and nuclei_templates_path:
+        tools_obj = Tools.Tools(nuclei_iserver, nuclei_severity, nuclei_templates_path)
+    elif nuclei_severity and nuclei_templates_path:
+        tools_obj = Tools.Tools(nuclei_severity, nuclei_templates_path)
     else:
         tools_obj = Tools.Tools()
 
@@ -128,19 +136,19 @@ def main():
                         os.remove('nuclei_results.txt')
                         os.remove(file_write)
             else:
-                for line in results:
-                    template_telegram = f"🧙🏻‍♂️ New subdomain found: {line}\n{current_time}\n"
+                for subdomain in results:
+                    template_telegram = f"🧙🏻‍♂️ New subdomain found: {subdomain}\n{current_time}\n"
                     telegram.send(template_telegram)
                     new_subdomains = cert_obj.get_new_subdomains_to_notify()
                     cert_obj.mark_subdomains_as_notified(new_subdomains)
                     if run_nuclei:
                         print(f"[*] Running nuclei on the new subdomains")
                         tools_obj.check_tools()
-                        tools_obj.run_single_nuclei(line)
+                        tools_obj.run_single_nuclei(subdomain)
                         print(f"[*] Nuclei scan completed")
                         if os.path.isfile('nuclei_results.txt'):
                             telegram.send_file('nuclei_results.txt')
-                            print(f"[*] Scan completed for {line} and sent to Telegram {current_time}")
+                            print(f"[*] Scan completed for {subdomain} and sent to Telegram {current_time}")
                             os.remove('nuclei_results.txt')
                             os.remove(file_write)
     if domains_file:
